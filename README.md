@@ -5,7 +5,9 @@
   - Crie um repositório público em sua conta do github para este projeto;
   - Desenvolva o projeto com a stack de sua preferência (Nós utilizamos: NodeJS, PHP e Python);
   - O armazenamento dos dados pode ser feito com o banco de dados de sua preferência;
-  - Descreva no README.md do projeto como executar o projeto e os testes;
+  - Utilize docker para facilitar a execução do projeto;
+  - Descreva no README.md do projeto como executar o mesmo e os testes;
+  - Justifique no README.md as decisões técnicas tomadas, como arquitetura, bibliotecas, etc;
   - Ao finalizar o teste, nos envie a URL do repositório e aguarde a avaliação;
 
 ## O projeto está dividido em 3 etapas:
