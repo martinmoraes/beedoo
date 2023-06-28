@@ -30,3 +30,7 @@
  - Se não puder entregar via URL do repositório, nos envie o projeto compactado, com o arquivo .git, para que possamos avaliar o histórico de commits;
 
 ### Boa sorte
+
+
+Relacional versus Dados NoSQL / O Teorema de CAP
+https://learn.microsoft.com/pt-br/dotnet/architecture/cloud-native/relational-vs-nosql-data
