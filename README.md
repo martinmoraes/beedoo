@@ -32,5 +32,30 @@
 ### Boa sorte
 
 
-Relacional versus Dados NoSQL / O Teorema de CAP
+## Relacional versus Dados NoSQL / O Teorema de CAP
+
+A principal diferença entre o modelo de dados não relacional e o tradicional é que o modelo não relacional é projetado para processar grandes quantidades de dados em um segundo, com requisitos de consistência relativamente baixos. 
+
+
 https://learn.microsoft.com/pt-br/dotnet/architecture/cloud-native/relational-vs-nosql-data
+
+SQL vs NoSQL: A Performance Comparison
+https://www.cs.rochester.edu/courses/261/fall2017/termpaper/submissions/06/Paper.pdf
+
+SQL vs NoSQL: A Performance Comparison
+https://restapp.io/blog/sql-vs-nosql-a-performance-comparison/
+
+
+
+SQL databases are vertically scalable, while NoSQL databases are horizontally scalable. 
+
+
+## Perguntas
+
+- Qual payload (Json/ string) de request (POST) e response na rota de create message?
+- Ao persistir a mensagem, além da mensagem, persister outros dados (Ex. createdAt)?
+- Ao listar as mensagens ordenar por padrão de alguma forma?
+
+## Justificativa 
+
+- noSQL: Tamanho da mensagem e performance 
