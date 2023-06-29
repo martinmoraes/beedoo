@@ -1,5 +1,5 @@
+const { logger } = require('../../infra/logger');
 const { SortingDirection } = require('./definitions');
-const { queryMessageSchema } = require('./message_validate.schema');
 
 class ListMessageService {
   constructor(httpResponse, messageRepository) {
@@ -7,41 +7,25 @@ class ListMessageService {
     this.messageRepository = messageRepository;
   }
 
-  execute(queryParams) {
-    const validated = this.isValidQuery(queryParams);
-    if (validated.length > 0) {
-      this.httpResponse.invalidFormat(validated);
+  async execute() {
+    try {
+      const resultingList = await this.messageRepository.list(this.getProperties());
+
+      this.httpResponse.ok(resultingList);
+      return true;
+    } catch (error) {
+      logger.error(error);
+      this.httpResponse.internalError('Invalid operation, please try again later');
       return false;
     }
   }
 
-  checkQueryParams(queryParams) {
-    if (!queryParams) {
-      this.httpResponse.invalidFormat('Invalid query attributes');
-      return false;
-    }
-
+  getProperties() {
     return {
-      sort: Number(queryParams.sort) || SortingDirection.DESC,
-      skip: Number(queryParams.skip) || 1,
-      limit: Number(queryParams.limit) || 10,
+      sort: SortingDirection.DESC,
+      skip: 1,
+      limit: 10,
     };
-  }
-
-  isValidQuery(queryDTO) {
-    const validation = queryMessageSchema.validate(queryDTO, { abortEarly: false });
-
-    if (validation.error) {
-      const errorMessage = validation.error.details.map((error) => {
-        return {
-          [error.path[0]]: error.message,
-        };
-      });
-
-      return errorMessage;
-    }
-
-    return [];
   }
 }
 
