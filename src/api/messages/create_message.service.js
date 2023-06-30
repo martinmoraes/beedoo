@@ -9,7 +9,6 @@ class CreateMessageService {
 
   async execute(messageDto) {
     const resultValidation = this.validateMessage(messageDto);
-    console.log(resultValidation);
     if (resultValidation.length > 0) {
       this.httpResponse.invalidFormat(resultValidation);
       return false;

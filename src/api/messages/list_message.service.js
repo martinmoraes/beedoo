@@ -32,7 +32,6 @@ class ListMessageService {
     };
 
     if (listDto?.words) {
-      console.log('PASSOU');
       queryProperties.words = listDto.words.split(' ');
     }
 

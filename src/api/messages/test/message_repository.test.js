@@ -12,7 +12,8 @@ describe('MessageRepository', () => {
   beforeAll(async () => {
     await connectMongo();
 
-    await MessageModel.insertMany(manyMessages(200));
+    await MessageModel.insertMany(manyMessages(10, 'a'));
+    await MessageModel.insertMany(manyMessages(10, 'b'));
   });
 
   beforeEach(async () => {
@@ -30,7 +31,6 @@ describe('MessageRepository', () => {
     it('create message', async () => {
       const newMessage = messageGenerator(80);
       const result = await messageRepository.create(newMessage);
-      console.log(result);
 
       expect(result).toStrictEqual(expect.objectContaining({ affectedRows: 1 }));
     });
@@ -46,10 +46,11 @@ describe('MessageRepository', () => {
       const result = await messageRepository.list(queryListMock);
 
       expect(result.length).toStrictEqual(10);
+      expect(result).toStrictEqual(expect.arrayContaining([expect.any(String)]));
     });
 
     it('with word', async () => {
-      const words = 'kkkkk'.split(' ');
+      const words = 'aaaa'.split(' ');
 
       const queryListMock = {
         sort: -1,
@@ -58,7 +59,6 @@ describe('MessageRepository', () => {
         words,
       };
       const result = await messageRepository.list(queryListMock);
-      console.log(result, words);
 
       expect(result.length).toStrictEqual(10);
     });

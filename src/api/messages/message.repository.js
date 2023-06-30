@@ -5,7 +5,6 @@ class MessageRepository {
   async create(MessageDto) {
     const messageModel = new MessageModel(MessageDto);
     const resultSaved = await messageModel.save();
-    console.log(resultSaved);
     return resultSaved?.message ? { affectedRows: 1 } : { affectedRows: 0 };
   }
 

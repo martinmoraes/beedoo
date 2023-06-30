@@ -5,18 +5,18 @@ const messageRepositoryMock = {
   list: jest.fn(),
 };
 
-const manyMessages = (qtdeMessages) => {
+const manyMessages = (qtdeMessages, character) => {
   const messages = [];
   for (let x = 1; x <= qtdeMessages; x++) {
-    messages.push(messageGenerator(20));
+    messages.push(messageGenerator(20, character));
   }
   return messages;
 };
 
-const messageGenerator = (qtdeCaracteres) => {
+const messageGenerator = (qtdeCaracteres, character = 'k') => {
   let message = '';
   for (let x = 1; x <= qtdeCaracteres; x++) {
-    message += 'k';
+    message += character;
   }
   return { message };
 };
@@ -29,4 +29,24 @@ const queryMessageMock = {
 
 const resultListMock = [{ message: 'aaaa' }, { message: 'bbbb' }];
 
-module.exports = { messageRepositoryMock, messageGenerator, queryMessageMock, resultListMock, manyMessages };
+const resultListE2E = [
+  'aaaaaaaaaaaaaaaaaaaa',
+  'aaaaaaaaaaaaaaaaaaaa',
+  'aaaaaaaaaaaaaaaaaaaa',
+  'aaaaaaaaaaaaaaaaaaaa',
+  'aaaaaaaaaaaaaaaaaaaa',
+  'aaaaaaaaaaaaaaaaaaaa',
+  'aaaaaaaaaaaaaaaaaaaa',
+  'aaaaaaaaaaaaaaaaaaaa',
+  'aaaaaaaaaaaaaaaaaaaa',
+  'aaaaaaaaaaaaaaaaaaaa',
+];
+
+module.exports = {
+  messageRepositoryMock,
+  messageGenerator,
+  queryMessageMock,
+  resultListMock,
+  manyMessages,
+  resultListE2E,
+};
