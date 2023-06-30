@@ -1,5 +1,5 @@
 const { logger } = require('../../infra/logger');
-const { SortingDirection } = require('./definitions');
+const { SortingDirection } = require('./message.definitions');
 
 class ListMessageService {
   constructor(httpResponse, messageRepository) {
@@ -7,14 +7,10 @@ class ListMessageService {
     this.messageRepository = messageRepository;
   }
 
-  async execute(page) {
-    if (this.validatePageNumber(page)) {
-      this.httpResponse.invalidFormat('The page must be a valid number');
-      return false;
-    }
-
+  async execute(listDto) {
     try {
-      const resultingList = await this.messageRepository.list(this.getProperties(page));
+      const queryProperties = this.getProperties(listDto);
+      const resultingList = await this.messageRepository.list(queryProperties);
 
       this.httpResponse.ok(resultingList);
 
@@ -27,14 +23,21 @@ class ListMessageService {
     }
   }
 
-  getProperties(page) {
+  getProperties(listDto) {
     const limit = 10;
-    const skip = limit * (Number(page) - 1);
-    return {
+    const page = listDto?.page ? listDto.page : 1;
+    const skip = (page - 1) * limit;
+    const queryProperties = {
       sort: SortingDirection.DESC,
       skip,
       limit,
     };
+
+    if (listDto?.words) {
+      queryProperties.words = listDto.words.split(' ');
+    }
+
+    return queryProperties;
   }
 
   validatePageNumber(page) {

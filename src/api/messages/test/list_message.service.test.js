@@ -1,5 +1,6 @@
 require('dotenv').config();
 const { httpResponseMock } = require('../../mock/httpResponseMock');
+const { SortingDirection } = require('../message.definitions');
 const { messageRepositoryMock, resultListMock } = require('./message.mock');
 const { ListMessageService } = require('../list_message.service');
 
@@ -7,6 +8,8 @@ describe('list message', () => {
   let listMessageService;
   beforeEach(() => {
     listMessageService = new ListMessageService(httpResponseMock, messageRepositoryMock);
+
+    jest.resetAllMocks();
   });
   describe('list pagination', () => {
     it('with success list', async () => {
@@ -17,12 +20,16 @@ describe('list message', () => {
       const spyHttpResponseMockInvalidFormat = jest.spyOn(httpResponseMock, 'invalidFormat');
       const spyHttpResponseMockInternalError = jest.spyOn(httpResponseMock, 'internalError');
 
-      const receive = await listMessageService.execute(2);
+      const receive = await listMessageService.execute({
+        words: 'word',
+        page: 1,
+      });
 
       const getProperties = {
-        sort: -1,
-        skip: 10,
+        sort: SortingDirection.DESC,
+        skip: 0,
         limit: 10,
+        words: ['word'],
       };
 
       expect(receive).toBe(true);
@@ -42,12 +49,16 @@ describe('list message', () => {
       const spyHttpResponseMockInvalidFormat = jest.spyOn(httpResponseMock, 'invalidFormat');
       const spyHttpResponseMockInternalError = jest.spyOn(httpResponseMock, 'internalError');
 
-      const receive = await listMessageService.execute(3);
+      const receive = await listMessageService.execute({
+        words: 'word',
+        page: 1,
+      });
 
       const getProperties = {
-        sort: -1,
-        skip: 20,
+        sort: SortingDirection.DESC,
+        skip: 0,
         limit: 10,
+        words: ['word'],
       };
 
       expect(receive).toBe(false);
@@ -62,15 +73,13 @@ describe('list message', () => {
     it('with invalid parameter', async () => {
       const spyMessageRepositoryListMock = jest.spyOn(messageRepositoryMock, 'list');
       const spyHttpResponseMockOk = jest.spyOn(httpResponseMock, 'ok');
-      const spyHttpResponseMockInvalidFormat = jest.spyOn(httpResponseMock, 'invalidFormat');
       const spyHttpResponseMockInternalError = jest.spyOn(httpResponseMock, 'internalError');
 
-      const receive = await listMessageService.execute('a');
+      const receive = await listMessageService.execute('invalid');
 
-      expect(receive).toBe(false);
-      expect(spyMessageRepositoryListMock).not.toHaveBeenCalled();
-      expect(spyHttpResponseMockOk).not.toHaveBeenCalled();
-      expect(spyHttpResponseMockInvalidFormat).toHaveBeenCalledWith('The page must be a valid number');
+      expect(receive).toBe(true);
+      expect(spyMessageRepositoryListMock).toHaveBeenCalled();
+      expect(spyHttpResponseMockOk).toHaveBeenCalled();
       expect(spyHttpResponseMockInternalError).not.toHaveBeenCalled();
     });
   });
@@ -89,7 +98,7 @@ describe('list message', () => {
     });
 
     it('with page in string', () => {
-      const result = listMessageService.getProperties('2');
+      const result = listMessageService.getProperties({ page: '2' });
 
       expect(result).toEqual(
         expect.objectContaining({
@@ -101,23 +110,70 @@ describe('list message', () => {
     });
   });
 
-  describe('validatePage', () => {
-    it('with valid number', () => {
-      const result = listMessageService.validatePageMumber(2);
+  describe('checkQueryParams', () => {
+    it('with valid query params', () => {
+      const listDto = {
+        words: 'word',
+        page: 1,
+      };
+      const result = listMessageService.getProperties(listDto);
 
-      expect(result).toBe(false);
+      expect(result).toEqual(
+        expect.objectContaining({
+          limit: 10,
+          skip: 0,
+          sort: -1,
+          words: ['word'],
+        }),
+      );
     });
 
-    it('with string number', () => {
-      const result = listMessageService.validatePageMumber('1');
+    it('with page 2', () => {
+      const listDto = {
+        words: 'word',
+        page: 2,
+      };
+      const result = listMessageService.getProperties(listDto);
 
-      expect(result).toBe(false);
+      expect(result).toEqual(
+        expect.objectContaining({
+          limit: 10,
+          skip: 10,
+          sort: -1,
+          words: ['word'],
+        }),
+      );
     });
 
-    it('with invalid number', () => {
-      const result = listMessageService.validatePageMumber('a');
+    it('without words', () => {
+      const listDto = {
+        page: 2,
+      };
+      const result = listMessageService.getProperties(listDto);
 
-      expect(result).toBe(true);
+      expect(result).toEqual(
+        expect.objectContaining({
+          limit: 10,
+          skip: 10,
+          sort: -1,
+        }),
+      );
+    });
+
+    it('with empty word', () => {
+      const listDto = {
+        page: 2,
+        words: '',
+      };
+      const result = listMessageService.getProperties(listDto);
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          limit: 10,
+          skip: 10,
+          sort: -1,
+        }),
+      );
     });
   });
 });

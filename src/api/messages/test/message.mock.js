@@ -1,16 +1,24 @@
-const { SortingDirection } = require('../definitions');
+const { SortingDirection } = require('../message.definitions');
 
 const messageRepositoryMock = {
   create: jest.fn(),
   list: jest.fn(),
 };
 
-const messageGenerator = (qtdeCaracteres) => {
+const manyMessages = (qtdeMessages, character) => {
+  const messages = [];
+  for (let x = 1; x <= qtdeMessages; x++) {
+    messages.push(messageGenerator(20, character));
+  }
+  return messages;
+};
+
+const messageGenerator = (qtdeCaracteres, character = 'k') => {
   let message = '';
   for (let x = 1; x <= qtdeCaracteres; x++) {
-    message += 'k';
+    message += character;
   }
-  return message;
+  return { message };
 };
 
 const queryMessageMock = {
@@ -21,4 +29,24 @@ const queryMessageMock = {
 
 const resultListMock = [{ message: 'aaaa' }, { message: 'bbbb' }];
 
-module.exports = { messageRepositoryMock, messageGenerator, queryMessageMock, resultListMock };
+const resultListE2E = [
+  'aaaaaaaaaaaaaaaaaaaa',
+  'aaaaaaaaaaaaaaaaaaaa',
+  'aaaaaaaaaaaaaaaaaaaa',
+  'aaaaaaaaaaaaaaaaaaaa',
+  'aaaaaaaaaaaaaaaaaaaa',
+  'aaaaaaaaaaaaaaaaaaaa',
+  'aaaaaaaaaaaaaaaaaaaa',
+  'aaaaaaaaaaaaaaaaaaaa',
+  'aaaaaaaaaaaaaaaaaaaa',
+  'aaaaaaaaaaaaaaaaaaaa',
+];
+
+module.exports = {
+  messageRepositoryMock,
+  messageGenerator,
+  queryMessageMock,
+  resultListMock,
+  manyMessages,
+  resultListE2E,
+};

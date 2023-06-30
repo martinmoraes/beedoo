@@ -8,6 +8,8 @@ describe('CreateMessageService', () => {
   let createMessageService;
   beforeEach(() => {
     createMessageService = new CreateMessageService(httpResponseMock, messageRepositoryMock);
+
+    jest.clearAllMocks();
   });
 
   describe('creating message', () => {
@@ -27,9 +29,9 @@ describe('CreateMessageService', () => {
     });
 
     it('with more than 300 characters', async () => {
-      const spyMessageRepositoryCreateMock = jest
-        .spyOn(messageRepositoryMock, 'create')
-        .mockResolvedValue({ affectedRows: 1 });
+      const spyMessageRepositoryCreateMock = jest.spyOn(messageRepositoryMock, 'create');
+      const spyHttpResponseMockOk = jest.spyOn(httpResponseMock, 'ok');
+      const spyHttpResponseMockInternalError = jest.spyOn(httpResponseMock, 'internalError');
       const spyHttpResponseMockInvalidFormat = jest.spyOn(httpResponseMock, 'invalidFormat');
 
       const message = messageGenerator(301);
@@ -37,7 +39,25 @@ describe('CreateMessageService', () => {
 
       expect(result).toBe(false);
       expect(spyMessageRepositoryCreateMock).not.toHaveBeenCalled();
-      expect(spyHttpResponseMockInvalidFormat).toHaveBeenCalledWith('Message longer than 300 characters');
+      expect(spyHttpResponseMockOk).not.toHaveBeenCalled();
+      expect(spyHttpResponseMockInternalError).not.toHaveBeenCalled();
+      expect(spyHttpResponseMockInvalidFormat).toHaveBeenCalled();
+    });
+
+    it('without message', async () => {
+      const spyMessageRepositoryCreateMock = jest.spyOn(messageRepositoryMock, 'create');
+      const spyHttpResponseMockOk = jest.spyOn(httpResponseMock, 'ok');
+      const spyHttpResponseMockInternalError = jest.spyOn(httpResponseMock, 'internalError');
+      const spyHttpResponseMockInvalidFormat = jest.spyOn(httpResponseMock, 'invalidFormat');
+
+      const message = { message: '' };
+      const result = await createMessageService.execute(message);
+
+      expect(result).toBe(false);
+      expect(spyMessageRepositoryCreateMock).not.toHaveBeenCalled();
+      expect(spyHttpResponseMockOk).not.toHaveBeenCalled();
+      expect(spyHttpResponseMockInternalError).not.toHaveBeenCalled();
+      expect(spyHttpResponseMockInvalidFormat).toHaveBeenCalled();
     });
 
     it('with internal error', async () => {
@@ -46,23 +66,37 @@ describe('CreateMessageService', () => {
       });
       const spyHttpResponseMockOk = jest.spyOn(httpResponseMock, 'ok');
       const spyHttpResponseMockInternalError = jest.spyOn(httpResponseMock, 'internalError');
+      const spyHttpResponseMockInvalidFormat = jest.spyOn(httpResponseMock, 'invalidFormat');
 
-      await createMessageService.execute('message');
+      await createMessageService.execute({ message: 'aaa' });
 
       expect(spyHttpResponseMockOk).not.toHaveBeenCalled();
-      expect(spyHttpResponseMockInternalError).toHaveBeenCalledWith('Internal error, try again later');
+      expect(spyHttpResponseMockInternalError).toHaveBeenCalledWith(
+        'Invalid operation, please try again later',
+      );
+      expect(spyHttpResponseMockInvalidFormat).not.toHaveBeenCalled();
     });
   });
 
-  describe('validate message size', () => {
-    it('success validate message', () => {
+  describe('validate message size - validateMessage', () => {
+    it('with validate message', () => {
       const result = createMessageService.validateMessage(messageGenerator(300));
-      expect(result).toBe(true);
+
+      expect(result).toStrictEqual([]);
     });
 
     it('with more than 300 characters', () => {
       const result = createMessageService.validateMessage(messageGenerator(301));
-      expect(result).toBe(false);
+
+      expect(result).toStrictEqual([
+        { message: '"message" length must be less than or equal to 300 characters long' },
+      ]);
+    });
+
+    it('without message', () => {
+      const result = createMessageService.validateMessage('');
+
+      expect(result).toStrictEqual([{ undefined: '"value" must be of type object' }]);
     });
   });
 });

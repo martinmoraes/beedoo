@@ -55,6 +55,7 @@ SQL databases are vertically scalable, while NoSQL databases are horizontally sc
 - Qual payload (Json/ string) de request (POST) e response na rota de create message?
 - Ao persistir a mensagem, além da mensagem, persister outros dados (Ex. createdAt)?
 - Ao listar as mensagens ordenar por padrão de alguma forma?
+- A busca por "palavras chave" seriam separadas por espaço? 
 
 ## Justificativa 
 
