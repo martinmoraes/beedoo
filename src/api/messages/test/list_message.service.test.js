@@ -1,12 +1,15 @@
 require('dotenv').config();
 const { httpResponseMock } = require('../../mock/httpResponseMock');
-const { messageRepositoryMock, queryMessageMock, resultListMock } = require('./message.mock');
+const { SortingDirection } = require('../message.definitions');
+const { messageRepositoryMock, resultListMock } = require('./message.mock');
 const { ListMessageService } = require('../list_message.service');
 
 describe('list message', () => {
   let listMessageService;
   beforeEach(() => {
     listMessageService = new ListMessageService(httpResponseMock, messageRepositoryMock);
+
+    jest.clearAllMocks();
   });
   describe('list pagination', () => {
     it('with success list', async () => {
@@ -16,12 +19,16 @@ describe('list message', () => {
       const spyHttpResponseMockOk = jest.spyOn(httpResponseMock, 'ok');
       const spyHttpResponseMockInternalError = jest.spyOn(httpResponseMock, 'internalError');
 
-      const receive = await listMessageService.execute();
+      const receive = await listMessageService.execute({
+        words: 'word',
+        page: 1,
+      });
 
       const getProperties = {
-        sort: -1,
-        skip: 1,
+        sort: SortingDirection.DESC,
+        skip: 0,
         limit: 10,
+        words: ['word'],
       };
 
       expect(receive).toBe(true);
@@ -39,12 +46,16 @@ describe('list message', () => {
       const spyHttpResponseMockOk = jest.spyOn(httpResponseMock, 'ok');
       const spyHttpResponseMockInternalError = jest.spyOn(httpResponseMock, 'internalError');
 
-      const receive = await listMessageService.execute();
+      const receive = await listMessageService.execute({
+        words: 'word',
+        page: 1,
+      });
 
       const getProperties = {
-        sort: -1,
-        skip: 1,
+        sort: SortingDirection.DESC,
+        skip: 0,
         limit: 10,
+        words: ['word'],
       };
 
       expect(receive).toBe(false);
@@ -58,9 +69,68 @@ describe('list message', () => {
 
   describe('checkQueryParams', () => {
     it('with valid query params', () => {
-      const result = listMessageService.getProperties(queryMessageMock);
+      const listDto = {
+        words: 'word',
+        page: 1,
+      };
+      const result = listMessageService.getProperties(listDto);
 
-      expect(result).toEqual(expect.objectContaining(queryMessageMock));
+      expect(result).toEqual(
+        expect.objectContaining({
+          limit: 10,
+          skip: 0,
+          sort: -1,
+          words: ['word'],
+        }),
+      );
+    });
+
+    it('with page 2', () => {
+      const listDto = {
+        words: 'word',
+        page: 2,
+      };
+      const result = listMessageService.getProperties(listDto);
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          limit: 10,
+          skip: 10,
+          sort: -1,
+          words: ['word'],
+        }),
+      );
+    });
+
+    it('without words', () => {
+      const listDto = {
+        page: 2,
+      };
+      const result = listMessageService.getProperties(listDto);
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          limit: 10,
+          skip: 10,
+          sort: -1,
+        }),
+      );
+    });
+
+    it('with empty word', () => {
+      const listDto = {
+        page: 2,
+        words: '',
+      };
+      const result = listMessageService.getProperties(listDto);
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          limit: 10,
+          skip: 10,
+          sort: -1,
+        }),
+      );
     });
   });
 });

@@ -1,31 +1,58 @@
-// const Post = require('./models/Post');
+const { Logger } = require('winston');
+const { MessageModel } = require('./message.model');
 
-// const page = 1; // Página atual
-// const perPage = 10; // Número de documentos por página
-// const sortBy = 'createdAt'; // Campo usado para ordenação (exemplo: createdAt)
+class MessageRepository {
+  async create(MessageDto) {
+    const messageModel = new MessageModel(MessageDto);
+    const resultSaved = await messageModel.save();
+    console.log(resultSaved);
+    return resultSaved?.message ? { affectedRows: 1 } : { affectedRows: 0 };
+  }
 
-// // Calcula o número de documentos a serem pulados
-// const skip = (page - 1) * perPage;
+  async list(queryProperties) {
+    if (queryProperties?.words) {
+      return this.listByWords(queryProperties);
+    } else {
+      return this.simpleList(queryProperties);
+    }
+  }
 
-// // Executa a consulta
-// Post.find()
-//   .sort({ [sortBy]: 1 }) // 1 para ordenação ascendente, -1 para ordenação descendente
-//   .skip(skip)
-//   .limit(perPage)
-//   .exec((err, posts) => {
-//     if (err) {
-//       // Lida com o erro
-//     } else {
-//       // Faz algo com os documentos retornados
-//       console.log(posts);
-//     }
-//   });
-// Neste exemplo, estamos usando o modelo Post para realizar a consulta. O método find() é usado para buscar todos os documentos. Em seguida, utilizamos o método sort() para definir a ordenação com base no campo especificado (sortBy). O valor 1 é usado para ordenação ascendente, e -1 é usado para ordenação descendente.
+  async simpleList(queryProperties) {
+    let resultFindModel;
+    try {
+      resultFindModel = await MessageModel.find()
+        .sort({ ['_id']: queryProperties.sort })
+        .skip(queryProperties.skip)
+        .limit(queryProperties.limit)
+        .exec();
+    } catch (error) {
+      Logger.error(error);
+      return [];
+    }
 
-// Após definir a ordenação, utilizamos os métodos skip() e limit() para aplicar a paginação, da mesma forma que no exemplo anterior. O número de documentos a serem pulados é calculado multiplicando o número da página atual (page) pelo número de documentos por página (perPage).
+    return resultFindModel.map(({ message }) => {
+      return message;
+    });
+  }
 
-// Ao executar a consulta com exec(), você pode lidar com os resultados no callback, assim como mencionado anteriormente.
+  async listByWords(queryProperties) {
+    let resultFindModel;
+    try {
+      const regex = new RegExp(queryProperties.words.join('|'), 'i');
+      resultFindModel = await MessageModel.find({ message: { $regex: regex } })
+        .sort({ ['_id']: queryProperties.sort })
+        .skip(queryProperties.skip)
+        .limit(queryProperties.limit)
+        .exec();
+    } catch (error) {
+      Logger.error(error);
+      return [];
+    }
 
-// Lembre-se de que você deve substituir './models/Post' pelo caminho correto para o seu modelo e garantir que a conexão com o banco de dados esteja estabelecida antes de executar a consulta.
+    return resultFindModel.map(({ message }) => {
+      return message;
+    });
+  }
+}
 
-// Você pode ajustar os valores de page, perPage e sortBy de acordo com os requisitos específicos da sua paginação e ordenação.
+module.exports = { MessageRepository };
