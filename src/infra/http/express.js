@@ -2,6 +2,7 @@ const express = require('express');
 
 const { setupRoutes } = require('./routes');
 const bodyParser = require('body-parser');
+const { logger } = require('../logger');
 require('dotenv').config();
 
 const init = () => {
@@ -14,7 +15,7 @@ const init = () => {
   setupRoutes(app);
 
   app.listen(port, () => {
-    console.info(`Express started on port ${port}`);
+    logger.info(`Express started on port ${port}`);
   });
 };
 

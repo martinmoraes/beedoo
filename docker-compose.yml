@@ -1,20 +1,21 @@
 version: '3'
 
 services:
-  # nodejs-app:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - 3001:3001
-  #   depends_on:
-  #     - mongodb
-  #   environment:
-  #     - MONGO_HOST=mongodb://admin:password@mongodb:27017/?retryWrites=true&w=majority
-  #     - MONGO_DATABASE=message
-  #     - MONGO_POOLSIZE=5
-  #     - LOG_DIR=/log
-  #     - APP_PORT=3001
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    depends_on:
+      - mongodb
+    environment:
+      - MONGO_HOST=mongodb://admin:password@mongodb:27017/?retryWrites=true&w=majority
+      - MONGO_DATABASE=beedoo
+      - MONGO_POOLSIZE=5
+      - LOG_DIR=/log
+      - APP_PORT=3000
+      - NODE_ENV='production'
 
   mongodb:
     image: mongo
