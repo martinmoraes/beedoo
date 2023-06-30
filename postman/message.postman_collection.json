@@ -1,0 +1,44 @@
+{
+	"info": {
+		"_postman_id": "c1c37c86-48c8-4bd7-917a-16faf7b5d0ad",
+		"name": "message",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "2807310"
+	},
+	"item": [
+		{
+			"name": "new message",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"message\": \"\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/message",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"message"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	]
+}
