@@ -145,6 +145,23 @@ describe('list message', () => {
       );
     });
 
+    it('with two words', () => {
+      const listDto = {
+        words: 'word new',
+        page: 1,
+      };
+      const result = listMessageService.getProperties(listDto);
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          limit: 10,
+          skip: 0,
+          sort: -1,
+          words: ['word', 'new'],
+        }),
+      );
+    });
+
     it('without words', () => {
       const listDto = {
         page: 2,
