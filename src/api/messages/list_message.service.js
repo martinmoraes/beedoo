@@ -39,10 +39,6 @@ class ListMessageService {
 
     return queryProperties;
   }
-
-  validatePageNumber(page) {
-    return isNaN(page);
-  }
 }
 
 module.exports = { ListMessageService };

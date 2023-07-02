@@ -34,7 +34,9 @@
 
 <br>
 
-# Arquitetura
+# Etapa 1: Código, boas práticas e testes
+
+# 1.1 - Arquitetura
 
 A parte central do sistema é composta por: Controller, Services, Repository e HTTP Response.
 
@@ -43,13 +45,21 @@ A parte central do sistema é composta por: Controller, Services, Repository e H
 - **Repository** - Implementa as operações com o banco de dados e utiliza model para cada coleção. É passado do controller para os services fazendo injeção de dependência.
 - **HTTP Response** - É responsável por responder as requisições HTTP dos usuários. É passado do controller para os services fazendo injeção de dependência.
 
+<br>
+
+## Práticas adotadas
+- Aplicamos a inversão de dependência para facilitar aplicação de testes bem como permitir uma maior flexibilidade em fazer substituições de tecnologias da camadas mais externa do sistema. "HTTP response" e "message repository" são instanciados pelo controller que os injeta nos services ao instancia-los.
+- Separamos os recursos referentes a "infra" da regra de negócio. Com esta prática flexibilizasse a substituição dos recursos de infra com baixo ou nenhum impacto na regra de negócio. Ganhando com isso mais segurança em fazer substituições de tecnologias.
+- Adotamos a validação do payload no service, por entender que essa parte do processo diz respeito a regra de negócio. Por isso não foi colocado como "middleware", pois com isso uma parte importante do processo ficaria a encardo de um recurso da camada externa.
+
+
 A imagem a seguir exemplifica as relações entre as respectivas partes do sistema.
 
 ![APP Message](./imgs/arquitetura.png)
 
 ## Containers
 
-Adotou-se constainer visando portabilidade, consistência, escalabilidade, isolamento e outros benefícios. 
+Adotou-se container visando portabilidade, consistência, escalabilidade, isolamento e outros benefícios. 
 Eles fornecem um ambiente em que o aplicativo funcione da mesma forma, independentemente de onde esteja sendo executado.
 O projeto é apresentado em dois containers Docker e gerenciado pelo Docker-compose:
 
@@ -85,87 +95,71 @@ No exemplo a seguir temos uma query string com **page** e **words**
 
 <br>
 
-# Tecnologias utilizadas
+# 1.2 - Tecnologias utilizadas
 
 ## Qualidade de Código
 
 - **prettier**: Adotamos para a formatação de código que ajuda a manter a consistência e a legibilidade do código-fonte.
 - **eslint**: Adotamos para fazer a análise estática de código. Ela ajuda a identificar problemas e erros comuns no código, além de aplicar regras de estilo e boas práticas de programação.
 - **husky**: Adotamos para que no pre-commit execute os scripts:
-  - Neste projeto, antes do commit, está sendo checado:
     - O lint para o arquivos que estão em stage.
-    - E roda todos os testes.
+    - E test unitário.
 - **lint-stageg**: Permite executar linters de código apenas nos arquivos modificados em um determinado commit.
-- **test coverage**: É uma métrica usada para medir a extensão em que o código de um programa é testado pelos casos de teste. Ele indica a porcentagem de código que é executado durante a execução dos testes automatizados. Neste projeto a cobertura de testes está em 100%.
+- **test coverage**: Buscamos uma cobertura de teste acima de 90%.
 
 ## Regra de negocio
 
-- **decimal.js**: Biblioteca JavaScript que oferece suporte a operações matemáticas precisas e manipulação de números decimais. Ela foi projetada para superar as limitações de aritmética de ponto flutuante do JavaScript padrão, que pode resultar em imprecisões em cálculos envolvendo números decimais.
-- **node-input-validator**: Biblioteca para validação de entrada de dados em aplicativos Node.js. Ela fornece uma maneira simples e flexível de validar e sanitizar dados.
+- **Joi**: Validamos a string da mensagem para que tenha um valor e que não seja superior a 300 caracteres.
 
 ## Outras tecnologias
 
-- **Express**: Framework para desenvolvimento de aplicações web em Node.js. Ele fornece uma camada de abstração sobre o servidor HTTP do Node.js.
-- **MongoDB**: Banco de dados orientado a documentos, classificado como um banco de dados NoSQL (não relacional). Ele foi projetado para armazenar e gerenciar grandes volumes de dados de forma eficiente, fornecendo alta escalabilidade e desempenho.
-- **Mongoose**: Biblioteca de modelagem de objetos do MongoDB para aplicativos Node.js. Ela fornece uma camada de abstração sobre o driver nativo do MongoDB, facilitando a interação com o banco de dados e a definição de esquemas de dados.
-- **Docker-compose**: Ferramenta que permite definir e gerenciar vários contêineres Docker como uma única aplicação. Com ele, você pode criar, configurar e executar aplicativos multi-container.
-- **NodeJS**: Ambiente de tempo de execução de código aberto baseado no motor JavaScript V8 do Google Chrome. Ele permite que você execute JavaScript no lado do servidor.
-- **NPM**: Node Package Manager é o gerenciador de pacotes padrão para o ecossistema do Node.js. Ele permite que os desenvolvedores instalem, gerenciem e compartilhem pacotes de código reutilizáveis ​​(módulos) para seus projetos.
-- **Jest**: Framework de teste de código aberto para JavaScript, projetado principalmente para testar aplicativos e bibliotecas do Node.js.
-- **winston**: Biblioteca de registro (logging) para o Node.js. Ela fornece uma interface flexível e extensível para registrar mensagens e eventos nos aplicativos Node.js.
-- **Nodemon**: É uma ferramenta muito que agiliza o desenvolvimento, pois economiza tempo e esforço ao automatizar o processo de reinicialização do servidor sempre que necessário.
+- **Express**: Foi adotado como servidor HTTP por estar consolidado e por ter uma quantidade signifiativa de desenvolvedores familiarizados com a tecnologi.
+- **MongoDB**: Foi escolhido por armazenar e gerenciar grandes volumes de dados de forma eficiente, fornecendo alta escalabilidade e desempenho. Nos bancos de dados relacionais o armazenamento de dados em campos com mais de 255 caracteres tem uma degradação de performance.
+- **Mongoose**: Foi escolhido por ser conhecido entre a comunidade de desenvolvedores e por fornece uma camada de abstração sobre o driver nativo do MongoDB, facilitando a interação com o banco de dados e a definição de esquemas de dados.
+- **Docker-compose**: Facilita a criação, configurar e execução de aplicativos multi-container.
+- **NodeJS**: Foi escolhido para atender as especificações do projeto.
+- **NPM**: Foi adotado por sua maturidade, adoção e por ser integrado diretamente ao NodeJS, o que significa que não requer instalação adicional.
+- **Jest**: Foi adotado como ferramenta de teste por ter uma configuração simplificada, uma suíte completa de resursos e uma ótima integração com o ecossistema JavaScript. Seu tempo de execução é muito bom por executar testes em paralelo.
+- **winston**: Foi adotado por fornece uma interface flexível e extensível para registrar mensagens e eventos nos aplicativos Node.js.
+- **Nodemon**: Foi adotada para economiza tempo e esforço ao automatizar o processo de reinicialização do servidor sempre que necessário.
 
 <br>
 
-# Instalação
+# 1.3 - Instalação
 
 Passo 1: Clone o projeto. Na sua pasta de projetos execute o seguinte comando.
 
 ```
-git clone https://github.com/martinmoraes/sfc.git
+git clone https://github.com/martinmoraes/beedoo.git
+
+ou
+
+git clone git@github.com:martinmoraes/beedoo.git
 ```
 
 Passo 2: Instale as dependências. Na pasta raiz do projeto, execute os seguintes comando.
 
 ```
-cd sfc
+cd beedoo
 npm install
-```
-
-## Execução em modo de produção
-
-Passo 1: Iniciar a aplicação - Ainda na pasta raiz do projeto execute o comando abaixo.
-
-Obs.:
-
-- É necessário ter instalado o Docker e Docker-compose.
-- Certifique-se que nenhum serviço ou container esteja utilizando as portas 3001 e 27017.
-- Se estiver executando o Docker da seção "Execução em modo desenvolvimento", execute o passo 5 da referida seção.
-
-```
-docker-compose up -d
-```
-
-Passo 2: Parar a aplicação - Para parar a aplicação, estando na pasta raiz do projeto execute o seguinte comando.
-
-```
-docker-compose stop
 ```
 
 ## Execução em modo desenvolvimento
 
 Passo 1: Criar o arquivo .env, na raiz do projeto, com o seguinte conteudo
 
-P.S.: A variável de ambiente "LOG_DIR" deve conter o path completo para a pasta "log".
+P.S.: 
+- A variável de ambiente "LOG_DIR" deve conter o path completo para a pasta "log".
+- A aplicação vai utilizar a porta 3001, conforme definido em APP_PORT.
 
 ```
-APP_PORT=3001
-
-MONGO_HOST=mongodb://admin:admin@localhost:27017/?authMechanism=DEFAULT
-MONGO_DATABASE=mttechne
 MONGO_POOLSIZE=5
+MONGO_DATABASE=beedoo_test
+MONGO_HOST=mongodb://admin:password@localhost:27017/?authMechanism=DEFAULT
 
-LOG_DIR=~/log
+LOG_DIR=./log
+NODE_ENV='development'
+APP_PORT=3001
 ```
 
 Passo 2: MongoDB em Docker - Para executar o MongoDB em um Docker, execute o comando abaixo.
@@ -173,16 +167,12 @@ Passo 2: MongoDB em Docker - Para executar o MongoDB em um Docker, execute o com
 Obs.:
 
 - É necessário ter instalado o Docker e Docker-compose.
-- Certifique-se que nenhum serviço ou container esteja utilizando as portas 3001 e 27017.
-- Se estiver executando o Docker-compose da seção "Execução em modo de produção" execute o "Passo 2: Parar a aplicação", da referida seção.
+- Certifique-se que nenhum serviço ou container esteja utilizando as portas 3000 e 27017.
+- Quando rodar o docker a aplicação estará rodando na porta 3000.
+- Execute o seguinte comando da raiz do projeto para executar os containers.
 
 ```
-docker run -d --rm --name mongodb \
-	-p 27017:27017 \
-	-v data:/data/db \
-	-e MONGO_INITDB_ROOT_USERNAME=admin \
-	-e MONGO_INITDB_ROOT_PASSWORD=admin \
-	mongo:6.0.6
+docker-compose up -d
 ```
 
 Passo 3: Rodar o projeto - Certifique-se de estar na pasta raiz do projeto e execute o seguinte comando.
@@ -204,17 +194,20 @@ Command + C
 Passo 5: Parar o container - Para parar o container do MongoDB execute o seguinte comando.
 
 ```
-docker stop mongodb
+docker-compose down
 ```
 
 ## Postman: Testar os endpoint
 
 Pode ser utilizado o aplicativo [Postman](https://www.postman.com/) para fazer requisições nos endpoints.
-Na raiz do projeto, na pasta "postman" tem os arquivos que podem ser importados no Postman. Importe o environment e collection.
+Na raiz do projeto, na pasta "postman" tem os arquivos que podem ser importados no Postman. Importe o environment e collection. A seguir descrição dos três arquivos:
+- **beedoo containner.postman_environment.json**: Contem a(s) variávei(s) de ambientes direcionada a aplicação que roda no **container**.
+- **beedoo local.postman_environment.json**: Contem a(s) variávei(s) de ambientes direcionada a aplicação que roda em modo de **desenvolvimento**.
+- **message.postman_collection.json**: Contem as coleções para as chamadas POST e GET.
 
 <br>
 
-# Testes
+# 1.4 - Testes
 
 Os testes de unidade são uma prática de desenvolvimento de software em que unidades individuais de código são testadas para verificar se funcionam conforme o esperado.
 
@@ -238,7 +231,7 @@ npm run lint:fix
 
 ## Prettier
 
-Formata os arquivos JavaScript (com extensão .js) no diretório 'src' e em todos dentro dele. Estando na raiz do projeto execute o seguinte comando:
+Formata os arquivos JavaScript (com extensão .js) no diretório 'src' e em todos sub diretórios. Estando na raiz do projeto execute o seguinte comando:
 
 ```
 npm run format
@@ -252,40 +245,70 @@ Verifica a cobertura de teste, Estando na raiz do projeto execute o seguinte com
 npm run test:coverage
 ```
 
+<br>
+
+# Etapa 2: Análise de requisitos e planejamento técnico
+
+No futuro queremos permitir que os usuários possam adicionar comentários as mensagens.
+
+## Perguntas para o PO
+
+- Os comentários tem limitação de caracteres?
+- Os comentários poderão receber comentários?
+- Os comentários recebe o mesmo tratamento que uma mensagem?
+- O tempo de resposta para as **consultas/lista** se degradam conforme o volume de dados e a quantidade de requisições simultâneas. Temos de estar preparados para um volúme da dados e requisições exprecivos? 
+
+## Implementações
+
+Em linhas gerais as implementações necessárias, no back-end, para adicionar a funcionalidade de comentários são:
+- Colocar no payload de resposta, de cada mensagem, o identificador da mensagem (_id);
+- No payload de cada comentário (request) tem de ser fornecido o comentário e o identificador (_id) da mensagem.
+- Criar um controler com uma rota POST para criar o usuário;
+- Criar um service que sanitize os dados e que faça a chamada para persistência;
+
+  - Para definir a forma de persistência será necessário conversar com o PO para enteder se os comentários serão como novas mensagens, ou seja, se também podem receber comentário. Se sim os comentários serão armazenados na tabela das mensagens. Se não os comentários serão armazenados em uma tabela específica.
 
 
+## Desafios Técnicos
+
+Um dos desafios é dimencinar a quantidade de requisições simultâneas que o sistema irá receber. O processo de consultas/listar é o mais crítico para o tempo de resposta.
+Pensando nessa situação, tem-se algumas alternativas, todas elas carecem de uma análise mais detalhada com auxilio de métricas, principalmente para identificar se o gargalo é a aplicação, qual rota da aplicação e/ou se é o banco de dados. 
 
 
+<br>
 
+# Etapa 3: Auto avaliação
 
+## Melhorias
 
+<br>
 
+### Cache para paginação
 
-## Relacional versus Dados NoSQL / O Teorema de CAP
+Uma das melhorias que implementaria, visando uma melhor performance em recuperar os dados, seria no processo de paginação. Guardaria em um cache a chave do último registro (primeiro por estar ordenado decrescente) para que na solicitação da próxima pagina a busca no banco de dados ocoreria apartir do último registro. Evitaria com isso que o processo de filtro tivesse que passar por todos os registros a cada paginação.
 
-A principal diferença entre o modelo de dados não relacional e o tradicional é que o modelo não relacional é projetado para processar grandes quantidades de dados em um segundo, com requisitos de consistência relativamente baixos. 
+Por não ter a identificação do usuário que está fazendo a requisição, utilizaria como chave no cache, o IP com a porta da requisição de origem. Usaria a porta porque em uma rede de origem que utiliza NAT diferentes usuários estão com o mesmo IP na requisição.
 
+<br>
 
-https://learn.microsoft.com/pt-br/dotnet/architecture/cloud-native/relational-vs-nosql-data
+### Observabilidade e Métricas
 
-SQL vs NoSQL: A Performance Comparison
-https://www.cs.rochester.edu/courses/261/fall2017/termpaper/submissions/06/Paper.pdf
+Implementando observabilidade e métricas teriamos informações para acompanhar o perfil de utilização do sistema, os gargalos, alertas para os erros que ocorreriam.
 
-SQL vs NoSQL: A Performance Comparison
-https://restapp.io/blog/sql-vs-nosql-a-performance-comparison/
+<br>
 
+## Escalabilidade
 
+Alternativas:
+- SAGA: Consiste em separar os serviços de consulta, em outra aplicação, dos demais serviços. Criar dois banco de dados um para atender a presistência de novas mensagens e comentários e outro banco de dados para as consultas/listas. A integração dos dados pode ser feita:
+  
+  - O serviço de criar mensagem persiste nas duas bases;
+  - O serviço de criar mensagem coloca em uma fila e o serviço de consultas/listas pega da fila e persiste na base.
 
-SQL databases are vertically scalable, while NoSQL databases are horizontally scalable. 
+- Levantar mais instâncias da aplicação e utilizar um balanceador de carga.
+- Fazer um cluster do banco de dados MongoDB, que possibilita o balanceamento de carga. 
+- Utilizar o Elasticsearch para otimizar a busca por palavras no serviço de consultas/listar.
 
-
-## Perguntas
-
-- Qual payload (Json/ string) de request (POST) e response na rota de create message?
-- Ao persistir a mensagem, além da mensagem, persister outros dados (Ex. createdAt)?
-- Ao listar as mensagens ordenar por padrão de alguma forma?
-- A busca por "palavras chave" seriam separadas por espaço? 
-
-## Justificativa 
-
-- noSQL: Tamanho da mensagem e performance 
+<br>
+Outras possibilidades podem surgir durante a análise das métricas bem como a troca de idéias com a equipe.
+Ao considerar uma tecnologia é importante levar em conta os recursos e custos envolvidos.
